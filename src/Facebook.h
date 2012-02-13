@@ -28,7 +28,7 @@
 @interface Facebook : NSObject<FBLoginDialogDelegate,FBRequestDelegate>{
   NSString* _accessToken;
   NSDate* _expirationDate;
-  id<FBSessionDelegate> _sessionDelegate;
+  id<FBSessionDelegate> __unsafe_unretained _sessionDelegate;
   NSMutableSet* _requests;
   FBDialog* _loginDialog;
   FBDialog* _fbDialog;
@@ -41,7 +41,7 @@
 
 @property(nonatomic, copy) NSString* accessToken;
 @property(nonatomic, copy) NSDate* expirationDate;
-@property(nonatomic, assign) id<FBSessionDelegate> sessionDelegate;
+@property(nonatomic, unsafe_unretained) id<FBSessionDelegate> sessionDelegate;
 @property(nonatomic, copy) NSString* urlSchemeSuffix;
 
 - (id)initWithAppId:(NSString *)appId
@@ -84,6 +84,31 @@
                          andParams:(NSMutableDictionary *)params
                      andHttpMethod:(NSString *)httpMethod
                        andDelegate:(id <FBRequestDelegate>)delegate;
+
+/**
+ Block Handler
+ */
+- (FBRequest*)requestWithParams:(NSMutableDictionary *)params
+                     andHandler:(FBRequestHandler)handler;
+
+- (FBRequest*)requestWithMethodName:(NSString *)methodName
+                          andParams:(NSMutableDictionary *)params
+                      andHttpMethod:(NSString *)httpMethod
+                        andHandler:(FBRequestHandler)handler;
+
+- (FBRequest*)requestWithGraphPath:(NSString *)graphPath
+                       andHandler:(FBRequestHandler)handler;
+
+- (FBRequest*)requestWithGraphPath:(NSString *)graphPath
+                         andParams:(NSMutableDictionary *)params
+                       andHandler:(FBRequestHandler)handler;
+
+- (FBRequest*)requestWithGraphPath:(NSString *)graphPath
+                         andParams:(NSMutableDictionary *)params
+                     andHttpMethod:(NSString *)httpMethod
+                       andHandler:(FBRequestHandler)handler;
+
+
 
 - (void)dialog:(NSString *)action
    andDelegate:(id<FBDialogDelegate>)delegate;

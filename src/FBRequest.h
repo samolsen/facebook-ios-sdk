@@ -18,6 +18,7 @@
 #import <UIKit/UIKit.h>
 
 @protocol FBRequestDelegate;
+typedef void (^FBRequestHandler) (id result, NSError * error);
 
 enum {
   kFBRequestStateReady,
@@ -31,7 +32,7 @@ typedef NSUInteger FBRequestState;
  * Do not use this interface directly, instead, use method in Facebook.h
  */
 @interface FBRequest : NSObject {
-  id<FBRequestDelegate> _delegate;
+  id<FBRequestDelegate> __unsafe_unretained _delegate;
   NSString*             _url;
   NSString*             _httpMethod;
   NSMutableDictionary*  _params;
@@ -40,10 +41,11 @@ typedef NSUInteger FBRequestState;
   FBRequestState        _state;
   NSError*              _error;
   BOOL                  _sessionDidExpire;
+  FBRequestHandler      _handler;
 }
 
 
-@property(nonatomic,assign) id<FBRequestDelegate> delegate;
+@property(nonatomic,unsafe_unretained) id<FBRequestDelegate> delegate;
 
 /**
  * The URL which will be contacted to execute the request.
@@ -61,16 +63,21 @@ typedef NSUInteger FBRequestState;
  * These values in the dictionary will be converted to strings using the
  * standard Objective-C object-to-string conversion facilities.
  */
-@property(nonatomic,retain) NSMutableDictionary* params;
-@property(nonatomic,retain) NSURLConnection*  connection;
-@property(nonatomic,retain) NSMutableData* responseText;
+@property(nonatomic,strong) NSDictionary* params;
+@property(nonatomic,strong) NSURLConnection*  connection;
+@property(nonatomic,strong) NSMutableData* responseText;
 @property(nonatomic,readonly) FBRequestState state;
 @property(nonatomic,readonly) BOOL sessionDidExpire;
 
 /**
  * Error returned by the server in case of request's failure (or nil otherwise).
  */
-@property(nonatomic,retain) NSError* error;
+@property(nonatomic,strong) NSError* error;
+
+/**
+ * Optional handler block to use instead of delegate
+ */
+@property(nonatomic,copy) FBRequestHandler handler;
 
 
 + (NSString*)serializeURL:(NSString *)baseUrl
@@ -83,6 +90,11 @@ typedef NSUInteger FBRequestState;
 + (FBRequest*)getRequestWithParams:(NSMutableDictionary *) params
                         httpMethod:(NSString *) httpMethod
                           delegate:(id<FBRequestDelegate>)delegate
+                        requestURL:(NSString *) url;
+
++ (FBRequest*)getRequestWithParams:(NSMutableDictionary *) params
+                        httpMethod:(NSString *) httpMethod
+                           handler:(FBRequestHandler)handler
                         requestURL:(NSString *) url;
 - (BOOL) loading;
 

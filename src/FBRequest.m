@@ -280,8 +280,8 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   self.error = error;  
 
   if ([_delegate respondsToSelector:@selector(request:didLoad:)] ||
-      [_delegate respondsToSelector:
-          @selector(request:didFailWithError:)]) {
+      [_delegate respondsToSelector:@selector(request:didFailWithError:)] ||
+      _handler) {
 
     if (error) {
       [self failWithError:error];
